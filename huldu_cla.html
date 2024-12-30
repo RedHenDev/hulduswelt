@@ -83,10 +83,6 @@
             background: var(--bg-color);
             margin: 0;
             padding: 0;
-            background-image: url('assets/xanadu.png');
-            background-repeat: repeat;
-            background-size: 400px;
-            background-opacity: 0.1;
             background-blend-mode: soft-light;
         }
 
@@ -198,6 +194,7 @@
 </head>
 <body>
     <header>
+        <div class="header-backdrop"></div>
         <h1>Hidden Worlds: A Cultural Atlas of Parallel Realms</h1>
         <p>Exploring the unseen realms that exist alongside our own</p>
         <div id="sprite-container"></div>
@@ -207,7 +204,7 @@
         function createSprites() {
             const container = document.getElementById('sprite-container');
             const types = ['fairy', 'spirit', 'wisp'];
-            const numSprites = 12;
+            const numSprites = 144;
             
             for (let i = 0; i < numSprites; i++) {
                 const sprite = document.createElement('div');
@@ -231,7 +228,7 @@
 
     <div class="container">
         <div class="chapter">
-            <img src="assets/fairies.png" alt="Mystical fairies in a hidden grove" class="chapter-image">
+            <img src="./assets/fairies.png" alt="Mystical fairies in a hidden grove" class="chapter-image">
             <h2>Introduction: The Concept of Hidden Worlds</h2>
             <button class="toggle-button" onclick="toggleChapter(this)">Explore</button>
             <div class="chapter-content">
@@ -348,7 +345,7 @@
         </div>
 
         <div class="chapter">
-            <img src="assets/huldusfolk.png" alt="Mysterious dwelling of the Huldufolk" class="chapter-image">
+            <img src="./assets/huldusfolk.png" alt="Mysterious dwelling of the Huldufolk" class="chapter-image">
             <h2>Icelandic Huldufolk: The Hidden People</h2>
             <button class="toggle-button" onclick="toggleChapter(this)">Explore</button>
             <div class="chapter-content">
@@ -389,6 +386,7 @@
         </div>
 
         <div class="chapter">
+            <img src="./assets/xanadu.png" alt="Xanadu" class="chapter-image">
             <h2>Persian Paridaeza: The Hidden Gardens</h2>
             <button class="toggle-button" onclick="toggleChapter(this)">Explore</button>
             <div class="chapter-content">
@@ -467,7 +465,7 @@
         </div>
     </div>
 
-    <img src="assets/keeper.png" alt="Keeper of Hidden Worlds" class="floating-keeper" id="keeper">
+    <a href='./huldu_Gem.html'><img src="./assets/keeper.png" alt="Keeper of Hidden Worlds" class="floating-keeper" id="keeper"></a>
 
     <script>
         function toggleChapter(button) {
