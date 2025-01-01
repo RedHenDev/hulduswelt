@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hidden Worlds: A Cultural Atlas</title>
+    <style>
+        :root {
+            --primary-color: #2a4858;
+            --accent-color: #48856e;
+            --text-color: #d4c4a8;
+            --bg-color: #1a1a1a;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color);
+            font-family: 'Cinzel', serif;
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        #map-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #base-map {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .realm-marker {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .realm-marker::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+        }
+
+        .realm-marker:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+        }
+
+        .realm-tooltip {
+            position: absolute;
+            background: rgba(42, 72, 88, 0.95);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 200px;
+        }
+
+        .realm-info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(42, 72, 88, 0.95);
+            color: var(--text-color);
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .realm-info h2 {
+            margin: 0 0 10px 0;
+            color: #fff;
+            font-size: 1.5em;
+        }
+
+        .realm-info p {
+            margin: 0 0 10px 0;
+            line-height: 1.4;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        #title {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: var(--text-color);
+            text-shadow: 0 0 10px rgba(1, 1, 1, 1);
+            z-index: 1000;
+        }
+
+        #title h1 {
+            -webkit-text-stroke: 1px white;
+            text-stroke: 3px teal;
+            color: white;
+        }
+
+        #title p {
+            -webkit-text-stroke: 0.5px white;
+            text-stroke: 0.5px white;
+        }
+
+        @font-face {
+            font-family: 'Cinzel';
+            src: url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+        }
+    </style>
+</head>
+<body>
+    <div id="title">
+        <h1>Hidden Worlds: A Digital Atlas</h1>
+        <p>Click on the realms to explore their mysteries</p>
+    </div>
+
+    <div id="map-container">
+        <img id="base-map" src="./assets/map_v2.png" alt="Fantasy world map">
+        <div id="realm-markers"></div>
+    </div>
+
+    <div id="realm-info" class="realm-info">
+        <button class="close-button">&times;</button>
+        <h2></h2>
+        <p class="description"></p>
+        <p class="details"></p>
+    </div>
+
+    <script>
+        const realms = {
+            tirnanog: {
+                name: "Tír na nÓg",
+                description: "The Celtic Land of Eternal Youth",
+                details: "A supernatural realm of everlasting youth, beauty, and joy. Reached through ancient burial mounds, caves, or by crossing western seas.",
+                color: "#48856e",
+                position: { x: 35, y: 33 }
+            },
+            nineworlds: {
+                name: "Nine Worlds of Yggdrasil",
+                description: "The Norse Cosmic Tree",
+                details: "Nine interconnected realms held together by Yggdrasil, from Asgard to Helheim, housing gods, giants, elves, and the dead.",
+                color: "#2a4858",
+                position: { x: 42, y: 27 }
+            },
+            yokai: {
+                name: "Yokai Realm",
+                description: "The Hidden World of Japanese Spirits",
+                details: "A parallel world of supernatural entities, most visible during twilight hours, connected to nature and ancient places.",
+                color: "#8B4513",
+                position: { x: 75, y: 43 }
+            },
+            dreamtime: {
+                name: "Dreamtime",
+                description: "Aboriginal Australian Everywhen",
+                details: "An eternal spiritual realm existing simultaneously with our world, containing the essence of all creation.",
+                color: "#CD853F",
+                position: { x: 72, y: 75 } // Adjusted from 85
+            },
+            xibalba: {
+                name: "Xibalba",
+                description: "Maya Underworld",
+                details: "A complex underworld realm ruled by powerful lords, accessed through caves and sacred cenotes.",
+                color: "#8B0000",
+                position: { x: 28, y: 57 } // Adjusted further inward
+            },
+            huldufolk: {
+                name: "Huldufolk Realm",
+                description: "World of the Icelandic Hidden People",
+                details: "A parallel society existing within rocks and hills, home to the mysterious hidden folk.",
+                color: "#4682B4",
+                position: { x: 38, y: 23 }
+            },
+            diyu: {
+                name: "Diyu",
+                description: "Chinese Ten Courts",
+                details: "A bureaucratic otherworld of ten courts where souls are judged before reincarnation.",
+                color: "#BC8F8F",
+                position: { x: 68, y: 47 }
+            },
+            paridaeza: {
+                name: "Paridaeza",
+                description: "Persian Hidden Gardens",
+                details: "Enchanted realms of perfect gardens where the Peri (winged spirits) dwell.",
+                color: "#556B2F",
+                position: { x: 52, y: 47 }
+            },
+            animmuo: {
+                name: "Ani Mmuo",
+                description: "Igbo Spirit World",
+                details: "The realm of spirits parallel to the physical world, connected through masks and rituals.",
+                color: "#8B4513",
+                position: { x: 45, y: 67 }
+            },
+            po: {
+                name: "Pō",
+                description: "Hawaiian Divine Realm",
+                details: "The sacred realm of gods and spirits, from which all creation emerged.",
+                color: "#4B0082",
+                position: { x: 20, y: 50 } // Adjusted further inward
+            },
+            nav: {
+                name: "Nav",
+                description: "Slavic Spirit World",
+                details: "The invisible world of spirits and souls, accessible through sacred groves and crossroads.",
+                color: "#2F4F4F",
+                position: { x: 48, y: 37 }
+            }
+        };
+
+        function createRealmMarkers() {
+            const container = document.getElementById('realm-markers');
+            
+            Object.entries(realms).forEach(([id, realm]) => {
+                const marker = document.createElement('div');
+                marker.className = 'realm-marker';
+                marker.id = id;
+                marker.style.left = `${realm.position.x}%`;
+                marker.style.top = `${realm.position.y}%`;
+                marker.style.backgroundColor = realm.color;
+
+                marker.addEventListener('mouseover', (e) => showTooltip(e, realm));
+                marker.addEventListener('mouseout', hideTooltip);
+                marker.addEventListener('click', () => showRealmInfo(realm));
+
+                container.appendChild(marker);
+            });
+        }
+
+        function showTooltip(event, realm) {
+            // Remove any existing tooltips first
+            hideTooltip();
+            
+            const tooltip = document.createElement('div');
+            tooltip.className = 'realm-tooltip';
+            tooltip.textContent = realm.name;
+            
+            // Calculate position relative to the marker
+            const markerRect = event.target.getBoundingClientRect();
+            tooltip.style.left = `${markerRect.right + 10}px`;
+            tooltip.style.top = `${markerRect.top}px`;
+            
+            document.body.appendChild(tooltip);
+        }
+
+        function hideTooltip() {
+            const tooltips = document.querySelectorAll('.realm-tooltip');
+            tooltips.forEach(tooltip => tooltip.remove());
+        }
+
+        function showRealmInfo(realm) {
+            const infoPanel = document.getElementById('realm-info');
+            infoPanel.querySelector('h2').textContent = realm.name;
+            infoPanel.querySelector('.description').textContent = realm.description;
+            infoPanel.querySelector('.details').textContent = realm.details;
+            infoPanel.style.display = 'block';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createRealmMarkers();
+            
+            document.querySelector('.close-button').addEventListener('click', () => {
+                document.getElementById('realm-info').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
